@@ -1,1 +1,8 @@
+# VSCode
 *.code-workspace
+
+# Node (extension development tools)
+node_modules/
+# I don't actually want to lock in Node stuff right now
+package.json
+package-lock.json
