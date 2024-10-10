@@ -1,23 +1,3 @@
-
-function loadError(oError) {
-  throw new URIError(`The script ${oError.target.src} didn't load correctly.`);
-}
-
-function maybeLoadScript(url, onloadFunction) {
-  if (document.head.querySelector(`script[src="${url}"]`)) {
-    console.log(`Draggable Connections: Script element with ${url} already exists. Aborting.`);
-    return;
-  }
-  const newScript = document.createElement("script");
-  newScript.onerror = loadError;
-  if (onloadFunction) {
-    newScript.onload = onloadFunction;
-  }
-  document.head.appendChild(newScript);
-  newScript.src = url;
-}
-
-
 function setUpDraggables() {
   // Only using selectors that aren't obfuscated
   const outerContainer = document.getElementsByTagName("fieldset")[0];
@@ -25,7 +5,6 @@ function setUpDraggables() {
   const tileContainer = tiles[0].parentNode;
   const deselectBtn = document.querySelector('[data-testid="deselect-btn"]');
   const submitBtn = document.querySelector('[data-testid="submit-btn"]');
-
 
   // Unhelpfully, after a category is solved, all the remaining tiles get
   // reordered. So we store the current order when submit is pressed and if a
@@ -78,8 +57,6 @@ function setUpDraggables() {
     observer.observe(solvedCategoriesContainer, { childList: true, subtree: true });
   });
 
-
-
   function onDrag() {
     if (this.hitTest(tileContainer, 0)) {
       for (const otherTile of tiles) {
@@ -121,28 +98,5 @@ function setUpDraggables() {
   });
 }
 
-// Helper function for debugging. Not used for the actual thing.
-function destroyDraggables() {
-  const tiles = document.querySelectorAll('[data-testid="card-label"]');
-  for (const tile of tiles) {
-    Draggable.get(tile).kill();
-  }
-}
-
-function resetLayout() {
-  for (var i = 0; i < tiles.length; i++) {
-    gsap.to(tiles[i], { x: 0, y: 0 });
-  }
-}
-
-function getIndex(tile) {
-  return Array.from(tiles).indexOf(tile);
-}
-
-maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js", () => {
-  console.log("Draggable Connections: gsap loaded");
-  maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Draggable.min.js", () => {
-    console.log("Draggable Connections: Draggable loaded");
-    setUpDraggables();
-  });
-});
+// Wait for the page to load before setting up the draggables
+window.addEventListener('load', setUpDraggables);

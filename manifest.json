@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "NYT Connections Draggable",
+    "version": "1.0",
+    "description": "Adds drag and drop functionality to NYT Connections game",
+    "permissions": [
+      "https://www.nytimes.com/games/connections"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["https://www.nytimes.com/games/connections"],
+        "js": [
+          "gsap.min.js",
+          "Draggable.min.js",
+          "draggable-connections.js"
+        ]
+      }
+    ]
+  }
