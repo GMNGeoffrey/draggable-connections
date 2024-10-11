@@ -39,6 +39,15 @@ function setUpDraggables() {
   let solvedCount = solvedNodes.length;
   let tilesSnapshot = Array.from(tiles);
 
+  // NYT is using CSS transitions for some styles, which interact horribly with GSAP:
+  // (https://gsap.com/resources/mistakes/#using-css-transitions-and-gsap-on-the-same-properties).
+  // This was still workable on desktop, but on mobile it made it totally unusable.
+  // See https://gsap.com/community/forums/topic/42669-poor-draggable-performance-on-mobile-android-firefox-and-chrome/
+  for (const tile of tiles) {
+    tile.style["will-change"] = "transform";
+    tile.style["transition"] = "none";
+  }
+
   let solvedCategoriesContainer = outerContainer;
   if (solvedCount != 0) {
     solvedCategoriesContainer = solvedNodes[0].parentNode;
