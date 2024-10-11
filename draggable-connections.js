@@ -1,27 +1,3 @@
-// Taken from https://stackoverflow.com/a/61511955
-function waitForElement(selector) {
-  return new Promise(resolve => {
-    if (document.querySelector(selector)) {
-      return resolve(document.querySelector(selector));
-    }
-
-    const observer = new MutationObserver(mutations => {
-      if (document.querySelector(selector)) {
-        observer.disconnect();
-        resolve(document.querySelector(selector));
-      }
-    });
-
-    // If you get "parameter 1 is not of type 'Node'" error, see
-    // https://stackoverflow.com/a/77855838/492336
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  });
-}
-
-
 function setUpDraggables() {
   console.log("DRAGGABLE CONNECTIONS: setup called");
   // Only using selectors that aren't obfuscated
@@ -44,7 +20,6 @@ function setUpDraggables() {
   // This was still workable on desktop, but on mobile it made it totally unusable.
   // See https://gsap.com/community/forums/topic/42669-poor-draggable-performance-on-mobile-android-firefox-and-chrome/
   for (const tile of tiles) {
-    tile.style["will-change"] = "transform";
     tile.style["transition"] = "none";
   }
 
@@ -132,5 +107,3 @@ function setUpDraggables() {
   });
 }
 
-// Wait for the page to load before setting up the draggables
-window.addEventListener('load', waitForElement("fieldset").then(setUpDraggables));

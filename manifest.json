@@ -12,7 +12,8 @@
         "js": [
           "gsap.min.js",
           "Draggable.min.js",
-          "draggable-connections.js"
+          "draggable-connections.js",
+          "main.js"
         ]
       }
     ]
