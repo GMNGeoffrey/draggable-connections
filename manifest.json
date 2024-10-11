@@ -10,8 +10,8 @@
       {
         "matches": ["https://www.nytimes.com/games/connections"],
         "js": [
-          "gsap.min.js",
-          "Draggable.min.js",
+          "third_party/gsap.min.js",
+          "third_party/Draggable.min.js",
           "draggable-connections.js",
           "main.js"
         ]

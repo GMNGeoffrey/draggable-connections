@@ -1,11 +1,9 @@
 # VSCode
 *.code-workspace
 
-# Node (extension development tools)
+# Node (web-ext extension development tool)
 node_modules/
-# I don't actually want to lock in Node stuff right now
+# I don't actually want to check in Node stuff right now
 package.json
 package-lock.json
 
-# Custom generated bookmarklet that mashes everything together
-*.bookmarklet.js
