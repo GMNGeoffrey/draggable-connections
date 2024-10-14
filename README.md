@@ -5,14 +5,51 @@ drag-and-droppable.
 
 ## Usage
 
+### Browser Extension
+
+#### Firefox
+
+Available for Desktop and Android: https://addons.mozilla.org/en-US/firefox/addon/draggable-connections/
+
+#### Chrome
+
+Google requires you to register and pay a (small) fee to publish to their
+webstore. It's also not possible to distribute Chrome extensions as files
+yourself for platforms other than Linux. Chrome also doesn't support extensions
+on mobile, and I'm guessing that's the place people more commonly play. I'll
+register and publish this to the store if there's interest (please file an
+issue), but not going to bother otherwise. Until then, you can load this as an
+unpacked extension. Git clone the repository and follow the
+[Chrome documentaiton](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
+I believe I have only used cross-browser extension features, so this seems to
+just work.
+
+#### Edge
+
+I don't use Edge. I can look into publishing this to the extension store if
+there's interest. Edge does appear to support mobile extensions.
+
+#### Opera
+
+I don't use Opera. I can look into publishing this to the extension store if
+there's interest, but Opera doesn't support mobile extensions.
+
+#### Safari
+
+Apple charges you $100/year for the honor of publishing for their browser. I
+will not be doing that, but someone else is welcome to. I also don't own any
+Apple devices, so have no way to test.
+
 ### Bookmarklet
 
-To create a [Bookmarklet](https://en.wikipedia.org/wiki/Bookmarklet) copy-paste
-the contents of
+If you can't install the extension, another option is a
+[Bookmarklet](https://en.wikipedia.org/wiki/Bookmarklet). To create one,
+copy-paste the contents of
 [bookmarklet/draggable.bookmarklet.encoded.txt](./bookmarklet/draggable.bookmarklet.encoded.txt)
-into the URL field of a bookmark in your browser. If you're concerned about
-executing obfuscated code from the internet in your browser, good! Feel free to
-re-generate the bookmarklet:
+into the URL field of a bookmark in your browser. Then after going to the
+connections page (and clicking play), execute the bookmarklet. If you're
+concerned about executing obfuscated code from the internet in your browser,
+good! Feel free to re-generate the bookmarklet:
 
 1. Run `./create_bookmarklet.sh` to concatenate the relevant files into
    [bookmarklet/draggable.bookmarklet.js](./bookmarklet/draggable.bookmarklet.js).
@@ -22,43 +59,17 @@ re-generate the bookmarklet:
 
 #### Mobile
 
-You can actually use bookmarklets on mobile Firefox and Chrome, but you have to
-get to them via the address bar instead of the bookmarks menu. See
+You can use bookmarklets on mobile Firefox and Chrome, but you have to get to
+them via the address bar instead of the bookmarks menu. See
 https://paul.kinlan.me/use-bookmarklets-on-chrome-on-android/ (Firefox is the
 same).
 
-### Browser Extension
-
-I have yet to package this as an installable extension from one of the extension
-web stores. In the meantime, you can load it as a temporary extension, though
-the bookmarklet options is probably easier.
-
-#### Desktop Firefox
-
-You can load this as a temporary developer extension. Git clone the repository
-and follow the
-[Firefox documentation](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
-
-
-#### Android Firefox
-
-Requires packaging. If you want to do development you can sideload it following
-the
-[Firefox extension development documentation](https://extensionworkshop.com/documentation/develop/developing-extensions-for-firefox-for-android/#install-and-run-your-extension-in-firefox-for-android)
-
-#### Chrome
-
-You can load this as an unpacked extension. Git clone the repository and follow
-the
-[Chrome documentaiton](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
-I seem to have only used cross-browser extension features, so this seems to just
-work.
-
 ## Compatibility
 
-I have manually tested this in Firefox, Firefox Android, and Chrome. AFAIK, I
-haven't used any exotic browser features, but very old browsers might have
-issues.
+I have manually tested this in Firefox Desktop (131.0.2), Firefox Android
+(131.0.2), Chrome Desktop (129.0.6668.100) and Chrome Android (129.0.6668.100,
+bookmarklet only). AFAIK, I haven't used any exotic browser features, so it
+should work on any browser but very old browser versions might have issues.
 
 ## Background
 
@@ -70,8 +81,8 @@ annoying, so I whipped up a little script. I was inspired to use
 [GSAP](https://gsap.com)'s
 [Draggable](https://gsap.com/docs/v3/Plugins/Draggable/) plugin by
 [this Reddit post](https://www.reddit.com/r/NYTConnections/comments/19bj5m0/drag_and_drop_connections_tiles/)
-that creates a standalone page where you can paste in the connections words and
-fiddle with them.
+where someone shared a standalone page where you can paste in the connections
+words and fiddle with them. I don't want to copy-paste things though.
 
 
 ## License
