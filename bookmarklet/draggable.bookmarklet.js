@@ -1,24 +1,84 @@
+"use strict";
+
+// Capture and replay normal selection events. We don't want dragging to cause a
+// tile to be selected, so we capture and stop propagation on the pointer events
+// and then if there isn't a drag, we replay them. We do it this way as opposed
+// to something like calling the selection function or mimicing its behavior
+// because we're trying to hack on top of someone else's obfuscated code, so
+// we're trying to stay as close to the user-level as possible.
+function onPress(pointerEvent) {
+  if (pointerEvent.type != 'pointerdown') {
+    console.warn(`onPress got event of unexpected type ${pointerEvent.type}`);
+    return;
+  }
+  if (pointerEvent.captured) return;
+  this.last_pd = pointerEvent;
+  pointerEvent.stopPropagation();
+  // the scale change mimics the native behavior. "50% 50%" is the default
+  // transformOrigin, but this somehow gets messed up for some tiles after
+  // submission and restoring their order.
+  // TODO: figure out why transformOrigin is getting messed up here.
+  gsap.to(this.target, {
+    opacity: 0.5, duration: 0, scale: 0.9, transformOrigin: "50% 50%"
+  });
+}
+
+function onRelease(pointerEvent) {
+  if (pointerEvent.type != 'pointerup') {
+    console.warn(`onRelease got event of unexpected type ${pointerEvent.type}`);
+    return;
+  }
+  if (pointerEvent.captured) return;
+  this.last_pu = pointerEvent;
+  pointerEvent.stopPropagation();
+  // Reset whatever we set in the pointerdown event.
+  gsap.to(this.target, { clearProps: "opacity,scale", duration: 0 });
+}
+
+function onClick(pointerEvent) {
+  // This checks avoids infinite recursion as pointerup+pointerdown creates
+  // another click.
+  if (this.last_pd != null) {
+    // We have to create a new event because the previous one has the
+    // 'cancelled' property set on it and that can't be unset.
+    const newPD = new PointerEvent('pointerdown', this.last_pd);
+    // We attach a flag to the event to indicate that its one we're replaying to
+    // avoid infinite recursion.
+    newPD.captured = true;
+    this.last_pd = null;
+    this.target.dispatchEvent(newPD);
+  }
+  if (this.last_pu != null) {
+    const newPU = new PointerEvent('pointerup', this.last_pu);
+    newPU.captured = true;
+    this.last_pu = null;
+    this.target.dispatchEvent(newPU);
+  }
+}
+
+
 function setUpDraggables() {
   console.log("DRAGGABLE CONNECTIONS: setup called");
-  // Only using selectors that aren't obfuscated
+  // Only using selectors that aren't obfuscated. We could use class name
+  // prefixes as well as those seem to be consistent.
   const outerContainer = document.querySelector("fieldset");
   const tiles = outerContainer.querySelectorAll('[data-testid="card-label"]');
   const tileContainer = tiles[0].parentNode;
-  const deselectBtn = document.querySelector('[data-testid="deselect-btn"]');
   const submitBtn = document.querySelector('[data-testid="submit-btn"]');
 
   // Unhelpfully, after a category is solved, all the remaining tiles get
   // reordered. So we store the current order when submit is pressed and if a
   // new solved category is added (and presumably everything else is reordered),
-  // we add the nodes back in that order.
+  // we add the nodes back in the saved order.
   let solvedNodes = outerContainer.querySelectorAll('[data-testid="solved-category-container"]');
   let solvedCount = solvedNodes.length;
   let tilesSnapshot = Array.from(tiles);
 
-  // NYT is using CSS transitions for some styles, which interact horribly with GSAP:
+  // NYT is using CSS transitions, which interact horribly with GSAP:
   // (https://gsap.com/resources/mistakes/#using-css-transitions-and-gsap-on-the-same-properties).
-  // This was still workable on desktop, but on mobile it made it totally unusable.
-  // See https://gsap.com/community/forums/topic/42669-poor-draggable-performance-on-mobile-android-firefox-and-chrome/
+  // This wasn't perceptible on desktop, but on mobile it made it totally
+  // unusable. See
+  // https://gsap.com/community/forums/topic/42669-poor-draggable-performance-on-mobile-android-firefox-and-chrome/
   for (const tile of tiles) {
     tile.style["transition"] = "none";
   }
@@ -77,7 +137,7 @@ function setUpDraggables() {
           }
           tileContainer.insertBefore(this.target, referenceElement);
           // Keep the dragged element sticky to the pointer. Otherwise it keeps
-          // its x,y coordinates, which are relevant to its position in the DOM,
+          // its x,y coordinates, which are relative to its position in the DOM,
           // which we just changed.
           this.update(/*applyBounds=*/false, /*sticky=*/true);
           break;
@@ -87,22 +147,21 @@ function setUpDraggables() {
   }
 
   function onDragEnd() {
-    // The element has already been moved in the DOM by onDrag. This just
-    // returns it to its new origin.
+    // The element has already been moved in the DOM by onDrag (if necessary).
+    // This just returns it to its new origin.
     gsap.to(this.target, { x: 0, y: 0 });
-    // Unselect everything. I couldn't figure out how to interrupt whatever
-    // event listener the page is using to select things, so this is the best we
-    // can do. Note that this needs to be in `onDragEnd` not `onRelease` or you
-    // could never select anything.
-    deselectBtn.click();
   }
+
+
 
   Draggable.create(tiles, {
     onDrag,
     onDragEnd,
-    // Increase minimumMovement a bit above the default (2), so we don't trigger
-    // the deselect everything behavior that follows a drag when someone moves
-    // the mouse slightly while clicking.
+    onPress,
+    onRelease,
+    onClick,
+    // Increase minimumMovement a bit above the default (2), so slipping while
+    // clicking doesn't fail to register.
     minimumMovement: 6
   });
 }

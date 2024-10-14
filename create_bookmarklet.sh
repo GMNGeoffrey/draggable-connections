@@ -3,4 +3,4 @@
 # into https://chriszarate.github.io/bookmarkleter/ to get an encoded
 # bookmarklet.
 
-cat draggable-connections.js load-draggable.js > draggable.bookmarklet.js 
+cat draggable-connections.js load-draggable.js > bookmarklet/draggable.bookmarklet.js 

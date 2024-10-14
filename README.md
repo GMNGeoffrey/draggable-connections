@@ -9,7 +9,8 @@ drag-and-droppable.
 
 #### Firefox
 
-Available for Desktop and Android: https://addons.mozilla.org/en-US/firefox/addon/draggable-connections/
+Available for Desktop and Android:
+https://addons.mozilla.org/en-US/firefox/addon/draggable-connections/
 
 #### Chrome
 
