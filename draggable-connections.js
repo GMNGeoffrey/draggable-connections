@@ -13,8 +13,13 @@ function onPress(pointerEvent) {
   if (pointerEvent.captured) return;
   this.last_pd = pointerEvent;
   pointerEvent.stopPropagation();
-  // the scale change mimics the native behavior.
-  gsap.to(this.target, { opacity: 0.5, duration: 0, scale: 0.9 });
+  // the scale change mimics the native behavior. "50% 50%" is the default
+  // transformOrigin, but this somehow gets messed up for some tiles after
+  // submission and restoring their order.
+  // TODO: figure out why transformOrigin is getting messed up here.
+  gsap.to(this.target, {
+    opacity: 0.5, duration: 0, scale: 0.9, transformOrigin: "50% 50%"
+  });
 }
 
 function onRelease(pointerEvent) {
