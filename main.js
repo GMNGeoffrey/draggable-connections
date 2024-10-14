@@ -1,3 +1,5 @@
+"use strict";
+
 // Taken from https://stackoverflow.com/a/61511955
 function waitForElement(selector) {
     return new Promise(resolve => {
@@ -21,6 +23,7 @@ function waitForElement(selector) {
     });
 }
 
+console.log("DRAGGABLE CONNECTIONS: Extension loaded");
 
 // Wait for the page to load before setting up the draggables. `setUpDraggables`
 // is defined in another file. We don't bother importing dependencies and such:

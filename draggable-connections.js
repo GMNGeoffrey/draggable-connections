@@ -1,3 +1,4 @@
+"use strict";
 
 // Capture and replay normal selection events. We don't want dragging to cause a
 // tile to be selected, so we capture and stop propagation on the pointer events
