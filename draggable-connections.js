@@ -31,8 +31,10 @@ function onRelease(pointerEvent) {
   if (pointerEvent.captured) return;
   this.last_pu = pointerEvent;
   pointerEvent.stopPropagation();
-  // Reset whatever we set in the pointerdown event.
-  gsap.to(this.target, { clearProps: "opacity,scale", duration: 0 });
+  // Reset what we set in the pointerdown event. I tried to use clearProps here,
+  // but that also clears x&y so the tile instantly snaps back to its starting
+  // location, which we don't really want.
+  gsap.to(this.target, { duration: 0, opacity: 1, scale: 1 });
 }
 
 function onClick(pointerEvent) {
@@ -149,7 +151,7 @@ function setUpDraggables() {
   function onDragEnd() {
     // The element has already been moved in the DOM by onDrag (if necessary).
     // This just returns it to its new origin.
-    gsap.to(this.target, { x: 0, y: 0 });
+    gsap.to(this.target, { x: 0, y: 0, duration: 0.5 });
   }
 
 
