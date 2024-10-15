@@ -140,7 +140,7 @@ function setUpDraggables() {
     let solvedChanged = false;
     for (const mutation of mutationList) {
       if (mutation.type === "childList") {
-        solvedNodes = outerContainer.querySelectorAll('[data-testid="solved-category-container"]');
+        solvedNodes = solvedCategoriesContainer.querySelectorAll('[data-testid="solved-category-container"]');
         if (solvedNodes.length != solvedCount) {
           solvedCount = solvedNodes.length;
           solvedChanged = true;
