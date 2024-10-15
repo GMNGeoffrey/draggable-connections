@@ -153,6 +153,19 @@ function setUpDraggables() {
   }
 
 
+  // Mostly only relevant for development when the extension gets reloaded a
+  // lot, but make sure we don't have competing Draggables on an object.
+  let existingDraggableCount = 0;
+  for (const tile of tiles) {
+    const maybeDraggable = Draggable.get(tile);
+    if (maybeDraggable) {
+      maybeDraggable.kill();
+      existingDraggableCount++;
+    }
+  }
+  if (existingDraggableCount !== 0) {
+    console.log(`DRAGGABLE CONNECTIONS: killed ${existingDraggableCount} existing draggables on tiles`);
+  }
 
   Draggable.create(tiles, {
     onDrag,
