@@ -58,6 +58,53 @@ function onClick(pointerEvent) {
   }
 }
 
+function onDragStart() {
+  gsap.to(this.target, { zIndex: 1000, duration: 0 });
+}
+
+function onDrag(tileContainer, tiles) {
+  if (this.hitTest(tileContainer, 0)) {
+    for (const otherTile of tiles) {
+      if (this.hitTest(otherTile, "50%")) {
+        const direction = this.getDirection(otherTile);
+        let referenceElement = otherTile;
+        if (direction.includes("right")) {
+          referenceElement = referenceElement.nextSibling;
+        }
+        tileContainer.insertBefore(this.target, referenceElement);
+        // Keep the dragged element sticky to the pointer. Otherwise it keeps
+        // its x,y coordinates, which are relative to its position in the DOM,
+        // which we just changed.
+        this.update(/*applyBounds=*/false, /*sticky=*/true);
+        break;
+      }
+    }
+  }
+}
+
+function onDragEnd() {
+  // The element has already been moved in the DOM by onDrag (if necessary).
+  // This just returns it to its new origin.
+  let tl = gsap.timeline();
+  tl.to(this.target, { x: 0, y: 0, duration: 0.5 });
+  tl.to(this.target, { clearProps: "zIndex", duration: 0 });
+}
+
+function killExistingDraggables(tiles) {
+  // Mostly only relevant for development when the extension gets reloaded a
+  // lot, but make sure we don't have competing Draggables on an object.
+  let existingDraggableCount = 0;
+  for (const tile of tiles) {
+    const maybeDraggable = Draggable.get(tile);
+    if (maybeDraggable) {
+      maybeDraggable.kill();
+      existingDraggableCount++;
+    }
+  }
+  if (existingDraggableCount !== 0) {
+    console.log(`DRAGGABLE CONNECTIONS: killed ${existingDraggableCount} existing draggables on tiles`);
+  }
+}
 
 function setUpDraggables() {
   console.log("DRAGGABLE CONNECTIONS: setup called");
@@ -89,7 +136,7 @@ function setUpDraggables() {
   if (solvedCount != 0) {
     solvedCategoriesContainer = solvedNodes[0].parentNode;
   }
-  const callback = (mutationList, observer) => {
+  const observer = new MutationObserver((mutationList, observer) => {
     let solvedChanged = false;
     for (const mutation of mutationList) {
       if (mutation.type === "childList") {
@@ -113,9 +160,8 @@ function setUpDraggables() {
       // The observer will be reconnected when the submit button is next clicked.
       observer.disconnect();
     }
-  };
+  });
 
-  const observer = new MutationObserver(callback);
 
   submitBtn.addEventListener("click", () => {
     tilesSnapshot = Array.from(outerContainer.querySelectorAll('[data-testid="card-label"]'));
@@ -128,56 +174,13 @@ function setUpDraggables() {
     observer.observe(solvedCategoriesContainer, { childList: true, subtree: true });
   });
 
-  function onDragStart() {
-    gsap.to(this.target, { zIndex: 1000, duration: 0 });
-  }
 
-  function onDrag() {
-    if (this.hitTest(tileContainer, 0)) {
-      for (const otherTile of tiles) {
-        if (this.hitTest(otherTile, "50%")) {
-          const direction = this.getDirection(otherTile);
-          let referenceElement = otherTile;
-          if (direction.includes("right")) {
-            referenceElement = referenceElement.nextSibling;
-          }
-          tileContainer.insertBefore(this.target, referenceElement);
-          // Keep the dragged element sticky to the pointer. Otherwise it keeps
-          // its x,y coordinates, which are relative to its position in the DOM,
-          // which we just changed.
-          this.update(/*applyBounds=*/false, /*sticky=*/true);
-          break;
-        }
-      }
-    }
-  }
-
-  function onDragEnd() {
-    // The element has already been moved in the DOM by onDrag (if necessary).
-    // This just returns it to its new origin.
-    let tl = gsap.timeline();
-    tl.to(this.target, { x: 0, y: 0, duration: 0.5 });
-    tl.to(this.target, { clearProps: "zIndex", duration: 0 });
-  }
-
-
-  // Mostly only relevant for development when the extension gets reloaded a
-  // lot, but make sure we don't have competing Draggables on an object.
-  let existingDraggableCount = 0;
-  for (const tile of tiles) {
-    const maybeDraggable = Draggable.get(tile);
-    if (maybeDraggable) {
-      maybeDraggable.kill();
-      existingDraggableCount++;
-    }
-  }
-  if (existingDraggableCount !== 0) {
-    console.log(`DRAGGABLE CONNECTIONS: killed ${existingDraggableCount} existing draggables on tiles`);
-  }
+  killExistingDraggables(tiles);
 
   Draggable.create(tiles, {
     onDragStart,
     onDrag,
+    onDragParams: [tileContainer, tiles],
     onDragEnd,
     onPress,
     onRelease,
