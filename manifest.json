@@ -1,20 +1,28 @@
 {
-    "manifest_version": 2,
-    "name": "Draggable Connections",
-    "version": "0.2",
-    "description": "Adds drag and drop functionality to the NYT Connections game.",
-    "permissions": [
-      "https://www.nytimes.com/games/connections"
-    ],
-    "content_scripts": [
-      {
-        "matches": ["https://www.nytimes.com/games/connections"],
-        "js": [
-          "third_party/gsap.min.js",
-          "third_party/Draggable.min.js",
-          "draggable-connections.js",
-          "main.js"
-        ]
-      }
-    ]
-  }
+  "manifest_version": 2,
+  "name": "Draggable Connections",
+  "version": "0.3",
+  "author": "Geoffrey Christopher Martin-Noble",
+  "description": "Adds drag and drop functionality to the NYT Connections game.",
+  "homepage_url": "https://github.com/GMNGeoffrey/draggable-connections",
+  "icons": {
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "permissions": [
+    "https://www.nytimes.com/games/connections"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.nytimes.com/games/connections"
+      ],
+      "js": [
+        "third_party/gsap.min.js",
+        "third_party/Draggable.min.js",
+        "draggable-connections.js",
+        "main.js"
+      ]
+    }
+  ]
+}

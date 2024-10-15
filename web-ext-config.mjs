@@ -5,7 +5,7 @@ export default {
         'yarn.lock',
         '*.code-workspace',
         'bookmarklet',
-        '*.sh',
+        'README.md', // This is the README for the GitHub project, not the extension
         '*.mjs',
     ],
 };
