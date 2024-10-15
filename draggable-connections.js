@@ -128,6 +128,10 @@ function setUpDraggables() {
     observer.observe(solvedCategoriesContainer, { childList: true, subtree: true });
   });
 
+  function onDragStart() {
+    gsap.to(this.target, { zIndex: 1000, duration: 0 });
+  }
+
   function onDrag() {
     if (this.hitTest(tileContainer, 0)) {
       for (const otherTile of tiles) {
@@ -151,7 +155,9 @@ function setUpDraggables() {
   function onDragEnd() {
     // The element has already been moved in the DOM by onDrag (if necessary).
     // This just returns it to its new origin.
-    gsap.to(this.target, { x: 0, y: 0, duration: 0.5 });
+    let tl = gsap.timeline();
+    tl.to(this.target, { x: 0, y: 0, duration: 0.5 });
+    tl.to(this.target, { clearProps: "zIndex", duration: 0 });
   }
 
 
@@ -170,6 +176,7 @@ function setUpDraggables() {
   }
 
   Draggable.create(tiles, {
+    onDragStart,
     onDrag,
     onDragEnd,
     onPress,
@@ -177,7 +184,12 @@ function setUpDraggables() {
     onClick,
     // Increase minimumMovement a bit above the default (2), so slipping while
     // clicking doesn't fail to register.
-    minimumMovement: 6
+    minimumMovement: 6,
+    // Don't automatically add to the zindex every time a tile is dragged. If
+    // this is left as the default true, the tiles eventually end up "on top of"
+    // things like the stats window. Not what we want. We instead manually
+    // increase and then revert zindex and drag start and end.
+    zIndexBoost: false
   });
 }
 
