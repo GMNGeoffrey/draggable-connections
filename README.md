@@ -52,7 +52,7 @@ connections page (and clicking play), execute the bookmarklet. If you're
 concerned about executing obfuscated code from the internet in your browser,
 good! Feel free to re-generate the bookmarklet:
 
-1. Run `./create_bookmarklet.sh` to concatenate the relevant files into
+1. Run `bookmarklet/create.sh` to concatenate the relevant files into
    [bookmarklet/draggable.bookmarklet.js](./bookmarklet/draggable.bookmarklet.js).
 2. Use a tool like https://chriszarate.github.io/bookmarkleter/ to transform it
    into a bookmarklet.
