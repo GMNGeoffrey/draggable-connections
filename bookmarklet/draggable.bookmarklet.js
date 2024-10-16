@@ -11,6 +11,8 @@ function onPress(pointerEvent) {
     console.warn(`onPress got event of unexpected type ${pointerEvent.type}`);
     return;
   }
+  // The captured event is just for whatever hooks the NYT React app. We want to
+  // let it propagate and not capture it or do anything ourselves.
   if (pointerEvent.captured) return;
   this.last_pd = pointerEvent;
   pointerEvent.stopPropagation();
@@ -28,11 +30,11 @@ function onRelease(pointerEvent) {
     console.warn(`onRelease got event of unexpected type ${pointerEvent.type}`);
     return;
   }
+  // The captured event is just for whatever hooks the NYT React app. We want to
+  // let it propagate and not capture it or do anything ourselves.
   if (pointerEvent.captured) return;
   this.last_pu = pointerEvent;
   pointerEvent.stopPropagation();
-  // Reset whatever we set in the pointerdown event.
-  gsap.to(this.target, { clearProps: "opacity,scale", duration: 0 });
 }
 
 function onClick(pointerEvent) {
@@ -54,8 +56,72 @@ function onClick(pointerEvent) {
     this.last_pu = null;
     this.target.dispatchEvent(newPU);
   }
+  // Clear all the properties we may have set elsewhere. We want the state when
+  // nothing is being dragged to be clean. The documentation claims that
+  // onDragEnd always fires, but this is empirically not the case for just a
+  // click, so we need to do the adjustement here.
+  gsap.to(this.target, { clearProps: "scale,transformOrigin,opacity,zIndex", duration: 0 });
 }
 
+function onDragStart() {
+  gsap.to(this.target, { zIndex: 1000, duration: 0 });
+}
+
+function onDrag(tileContainer, tiles) {
+  if (this.hitTest(tileContainer, 0)) {
+    for (const otherTile of tiles) {
+      if (this.hitTest(otherTile, "50%")) {
+        // Note that hitTest already excludes the element itself.
+        const direction = this.getDirection(otherTile);
+        let referenceElement = otherTile;
+        if (direction.includes("right")) {
+          referenceElement = referenceElement.nextSibling;
+        }
+        tileContainer.insertBefore(this.target, referenceElement);
+        // Keep the dragged element sticky to the pointer. Otherwise it keeps
+        // its x,y coordinates, which are relative to its position in the DOM,
+        // which we just changed.
+        this.update(/*applyBounds=*/false, /*sticky=*/true);
+        break;
+      }
+    }
+  }
+}
+
+function onDragEnd() {
+  // Basically this is just so very small movements don't take the default half
+  // a second, especially since we want to do things after they complete. Even
+  // if the tile is very far away we don't want it to take forever to return
+  // (this is about the game not the animations), so still capped at 0.5s.
+  const distance = Math.sqrt(this.endX ** 2 + this.endY ** 2);
+  const rect = this.target.getBoundingClientRect();
+  const tileSize = Math.sqrt(rect.height * rect.width);
+  const duration = Math.min(0.5, distance / tileSize);
+  
+  // The element has already been moved in the DOM by onDrag (if necessary).
+  // Return it to the origin and set its properties back to normal.
+  let tl = gsap.timeline();
+  tl.to(this.target, { x: 0, y: 0, scale: 1, opacity: 1, duration: duration });
+  // Clear all the properties we may have set elsewhere. We want the state when
+  // nothing is being dragged to be clean.
+  tl.to(this.target, { clearProps: "scale,transformOrigin,opacity,zIndex", duration: 0 });
+}
+
+function killExistingDraggables(tiles) {
+  // Mostly only relevant for development when the extension gets reloaded a
+  // lot, but make sure we don't have competing Draggables on an object.
+  let existingDraggableCount = 0;
+  for (const tile of tiles) {
+    const maybeDraggable = Draggable.get(tile);
+    if (maybeDraggable) {
+      maybeDraggable.kill();
+      existingDraggableCount++;
+    }
+  }
+  if (existingDraggableCount !== 0) {
+    console.log(`DRAGGABLE CONNECTIONS: killed ${existingDraggableCount} existing draggables on tiles`);
+  }
+}
 
 function setUpDraggables() {
   console.log("DRAGGABLE CONNECTIONS: setup called");
@@ -87,11 +153,11 @@ function setUpDraggables() {
   if (solvedCount != 0) {
     solvedCategoriesContainer = solvedNodes[0].parentNode;
   }
-  const callback = (mutationList, observer) => {
+  const observer = new MutationObserver((mutationList, observer) => {
     let solvedChanged = false;
     for (const mutation of mutationList) {
       if (mutation.type === "childList") {
-        solvedNodes = outerContainer.querySelectorAll('[data-testid="solved-category-container"]');
+        solvedNodes = solvedCategoriesContainer.querySelectorAll('[data-testid="solved-category-container"]');
         if (solvedNodes.length != solvedCount) {
           solvedCount = solvedNodes.length;
           solvedChanged = true;
@@ -111,9 +177,8 @@ function setUpDraggables() {
       // The observer will be reconnected when the submit button is next clicked.
       observer.disconnect();
     }
-  };
+  });
 
-  const observer = new MutationObserver(callback);
 
   submitBtn.addEventListener("click", () => {
     tilesSnapshot = Array.from(outerContainer.querySelectorAll('[data-testid="card-label"]'));
@@ -126,43 +191,25 @@ function setUpDraggables() {
     observer.observe(solvedCategoriesContainer, { childList: true, subtree: true });
   });
 
-  function onDrag() {
-    if (this.hitTest(tileContainer, 0)) {
-      for (const otherTile of tiles) {
-        if (this.hitTest(otherTile, "50%")) {
-          const direction = this.getDirection(otherTile);
-          let referenceElement = otherTile;
-          if (direction.includes("right")) {
-            referenceElement = referenceElement.nextSibling;
-          }
-          tileContainer.insertBefore(this.target, referenceElement);
-          // Keep the dragged element sticky to the pointer. Otherwise it keeps
-          // its x,y coordinates, which are relative to its position in the DOM,
-          // which we just changed.
-          this.update(/*applyBounds=*/false, /*sticky=*/true);
-          break;
-        }
-      }
-    }
-  }
 
-  function onDragEnd() {
-    // The element has already been moved in the DOM by onDrag (if necessary).
-    // This just returns it to its new origin.
-    gsap.to(this.target, { x: 0, y: 0 });
-  }
-
-
+  killExistingDraggables(tiles);
 
   Draggable.create(tiles, {
+    onDragStart,
     onDrag,
+    onDragParams: [tileContainer, tiles],
     onDragEnd,
     onPress,
-    onRelease,
+    onRelease, // Note that this is called before onClick or onDragEnd
     onClick,
     // Increase minimumMovement a bit above the default (2), so slipping while
     // clicking doesn't fail to register.
-    minimumMovement: 6
+    minimumMovement: 6,
+    // Don't automatically add to the zindex every time a tile is dragged. If
+    // this is left as the default true, the tiles eventually end up "on top of"
+    // things like the stats window. Not what we want. We instead manually
+    // increase and then revert zindex and drag start and end.
+    zIndexBoost: false
   });
 }
 
