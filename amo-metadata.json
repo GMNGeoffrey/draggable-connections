@@ -1,0 +1,11 @@
+{
+    "version": {
+        "release_notes": {
+            "en-US": "Version 0.4: Fix bug introduced in 0.3 that made tiles snap back to origin instantly.\nFix bug that moved tiles z-index above other elements like the stats dialog."
+          }
+    },
+    "compatibility": [
+        "android",
+        "firefox"
+    ]
+}

@@ -22,8 +22,11 @@ register and publish this to the store if there's interest (please file an
 issue), but not going to bother otherwise. Until then, you can load this as an
 unpacked extension. Git clone the repository and follow the
 [Chrome documentaiton](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
-I believe I have only used cross-browser extension features, so this seems to
-just work.
+Chrome will complain about the unrecognized
+[browser_specific_settings field](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings).
+This is because Chrome doesn't support this field and
+[Mozilla requires it for API upload to AMO](https://extensionworkshop.com/documentation/develop/extensions-and-the-add-on-id/)
+🤷
 
 #### Edge
 
