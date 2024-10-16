@@ -11,6 +11,8 @@ function onPress(pointerEvent) {
     console.warn(`onPress got event of unexpected type ${pointerEvent.type}`);
     return;
   }
+  // The captured event is just for whatever hooks the NYT React app. We want to
+  // let it propagate and not capture it or do anything ourselves.
   if (pointerEvent.captured) return;
   this.last_pd = pointerEvent;
   pointerEvent.stopPropagation();
@@ -28,13 +30,11 @@ function onRelease(pointerEvent) {
     console.warn(`onRelease got event of unexpected type ${pointerEvent.type}`);
     return;
   }
+  // The captured event is just for whatever hooks the NYT React app. We want to
+  // let it propagate and not capture it or do anything ourselves.
   if (pointerEvent.captured) return;
   this.last_pu = pointerEvent;
   pointerEvent.stopPropagation();
-  // Reset what we set in the pointerdown event. I tried to use clearProps here,
-  // but that also clears x&y so the tile instantly snaps back to its starting
-  // location, which we don't really want.
-  gsap.to(this.target, { duration: 0, opacity: 1, scale: 1 });
 }
 
 function onClick(pointerEvent) {
@@ -56,6 +56,11 @@ function onClick(pointerEvent) {
     this.last_pu = null;
     this.target.dispatchEvent(newPU);
   }
+  // Clear all the properties we may have set elsewhere. We want the state when
+  // nothing is being dragged to be clean. The documentation claims that
+  // onDragEnd always fires, but this is empirically not the case for just a
+  // click, so we need to do the adjustement here.
+  gsap.to(this.target, { clearProps: "scale,transformOrigin,opacity,zIndex", duration: 0 });
 }
 
 function onDragStart() {
@@ -66,6 +71,7 @@ function onDrag(tileContainer, tiles) {
   if (this.hitTest(tileContainer, 0)) {
     for (const otherTile of tiles) {
       if (this.hitTest(otherTile, "50%")) {
+        // Note that hitTest already excludes the element itself.
         const direction = this.getDirection(otherTile);
         let referenceElement = otherTile;
         if (direction.includes("right")) {
@@ -83,11 +89,22 @@ function onDrag(tileContainer, tiles) {
 }
 
 function onDragEnd() {
+  // Basically this is just so very small movements don't take the default half
+  // a second, especially since we want to do things after they complete. Even
+  // if the tile is very far away we don't want it to take forever to return
+  // (this is about the game not the animations), so still capped at 0.5s.
+  const distance = Math.sqrt(this.endX ** 2 + this.endY ** 2);
+  const rect = this.target.getBoundingClientRect();
+  const tileSize = Math.sqrt(rect.height * rect.width);
+  const duration = Math.min(0.5, distance / tileSize);
+  
   // The element has already been moved in the DOM by onDrag (if necessary).
-  // This just returns it to its new origin.
+  // Return it to the origin and set its properties back to normal.
   let tl = gsap.timeline();
-  tl.to(this.target, { x: 0, y: 0, duration: 0.5 });
-  tl.to(this.target, { clearProps: "zIndex", duration: 0 });
+  tl.to(this.target, { x: 0, y: 0, scale: 1, opacity: 1, duration: duration });
+  // Clear all the properties we may have set elsewhere. We want the state when
+  // nothing is being dragged to be clean.
+  tl.to(this.target, { clearProps: "scale,transformOrigin,opacity,zIndex", duration: 0 });
 }
 
 function killExistingDraggables(tiles) {
@@ -183,7 +200,7 @@ function setUpDraggables() {
     onDragParams: [tileContainer, tiles],
     onDragEnd,
     onPress,
-    onRelease,
+    onRelease, // Note that this is called before onClick or onDragEnd
     onClick,
     // Increase minimumMovement a bit above the default (2), so slipping while
     // clicking doesn't fail to register.
