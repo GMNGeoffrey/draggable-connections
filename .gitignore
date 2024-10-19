@@ -9,3 +9,4 @@ package-lock.json
 
 # web-ext
 web-ext-artifacts
+.amo-upload-uuid
