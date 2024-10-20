@@ -1,11 +1,12 @@
 {
     "version": {
         "release_notes": {
-            "en-US": "Version 0.4: Fix bug introduced in 0.3 that made tiles snap back to origin instantly.\nFix bug that moved tiles z-index above other elements like the stats dialog."
-          }
-    },
-    "compatibility": [
-        "android",
-        "firefox"
-    ]
+            "en-US": "Version 0.5:\nAnimate tiles moving back to the position the user put them after a category is solved."
+        },
+        "approval_notes": "Original source of third_party/Flip.min.js is https://raw.githubusercontent.com/greensock/GSAP/f836a3f0002d6ea00f456a461c7e2976e0ec3f38/dist/Flip.min.js",
+        "compatibility": [
+            "android",
+            "firefox"
+        ]
+    }
 }
