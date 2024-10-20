@@ -20,6 +20,7 @@
       "js": [
         "third_party/gsap.min.js",
         "third_party/Draggable.min.js",
+        "third_party/Flip.min.js",
         "draggable-connections.js",
         "main.js"
       ]
