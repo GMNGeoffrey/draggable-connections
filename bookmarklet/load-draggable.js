@@ -26,7 +26,11 @@ maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js", () 
     maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Draggable.min.js", () => {
         console.log("Draggable Connections: Draggable loaded");
         gsap.registerPlugin(Draggable);
-        setUpDraggables();
+        maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.min.js", () => {
+            console.log("Draggable Connections: Flip loaded");
+            gsap.registerPlugin(Flip);
+            setUpDraggables();
+        });
     });
 });
 

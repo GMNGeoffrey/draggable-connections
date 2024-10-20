@@ -97,7 +97,7 @@ function onDragEnd() {
   const rect = this.target.getBoundingClientRect();
   const tileSize = Math.sqrt(rect.height * rect.width);
   const duration = Math.min(0.5, distance / tileSize);
-  
+
   // The element has already been moved in the DOM by onDrag (if necessary).
   // Return it to the origin and set its properties back to normal.
   let tl = gsap.timeline();
@@ -125,10 +125,12 @@ function killExistingDraggables(tiles) {
 
 function setUpDraggables() {
   console.log("DRAGGABLE CONNECTIONS: setup called");
+  gsap.registerPlugin(Draggable);
+  gsap.registerPlugin(Flip);
   // Only using selectors that aren't obfuscated. We could use class name
   // prefixes as well as those seem to be consistent.
   const outerContainer = document.querySelector("fieldset");
-  const tiles = outerContainer.querySelectorAll('[data-testid="card-label"]');
+  let tiles = Array.from(outerContainer.querySelectorAll('[data-testid="card-label"]'));
   const tileContainer = tiles[0].parentNode;
   const submitBtn = document.querySelector('[data-testid="submit-btn"]');
 
@@ -138,7 +140,7 @@ function setUpDraggables() {
   // we add the nodes back in the saved order.
   let solvedNodes = outerContainer.querySelectorAll('[data-testid="solved-category-container"]');
   let solvedCount = solvedNodes.length;
-  let tilesSnapshot = Array.from(tiles);
+  let tilesSnapshot = tiles;
 
   // NYT is using CSS transitions, which interact horribly with GSAP:
   // (https://gsap.com/resources/mistakes/#using-css-transitions-and-gsap-on-the-same-properties).
@@ -165,15 +167,14 @@ function setUpDraggables() {
       }
     }
     if (solvedChanged) {
-      // Limit the scope we have to observe.
+      // Limit the scope we have to observe from now on.
       solvedCategoriesContainer = solvedNodes[0].parentNode;
-      for (const tile of tilesSnapshot) {
-        // Re-insert each node at the end in turn. The nodes from the new solved
-        // category will no longer have a parent and are skipped.
-        if (tile.parentNode != null) {
-          tileContainer.insertBefore(tile, null);
-        }
-      }
+      tilesSnapshot = tilesSnapshot.filter((e) => e.parentNode != null);
+      tiles = tiles.filter((e) => e.parentNode != null);
+      // Animate the tiles back to the order the user dragged them to.
+      const beforeState = Flip.getState(tiles);
+      tileContainer.replaceChildren(...tilesSnapshot);
+      Flip.from(beforeState);
       // The observer will be reconnected when the submit button is next clicked.
       observer.disconnect();
     }
@@ -181,6 +182,17 @@ function setUpDraggables() {
 
 
   submitBtn.addEventListener("click", () => {
+    // Something about the tiles being reordered confuses the native app's
+    // animation that pulls the guessed tiles up to the top in the case of a
+    // correct guess. The tiles frequently move to the wrong position, unrelated
+    // stuff gets shuffled, or a tile jumps off of the game area. I tried some
+    // options to fix that, like setting the tile order back to the original
+    // order here. That avoids the issues with the animations, but it's a bit
+    // jarring and trying to animate them back to those positions doesn't work
+    // well because the animations are on top of each other. I think that's
+    // going to have to just be an unfortunate side-effect of using the
+    // extension. Still worth it for the usability, but a bit less pretty.
+
     tilesSnapshot = Array.from(outerContainer.querySelectorAll('[data-testid="card-label"]'));
     // We could just observe all the time, but it seems better to not have the
     // observer running during all the dragging around. Before anything is
@@ -241,7 +253,11 @@ maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js", () 
     maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Draggable.min.js", () => {
         console.log("Draggable Connections: Draggable loaded");
         gsap.registerPlugin(Draggable);
-        setUpDraggables();
+        maybeLoadScript("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.min.js", () => {
+            console.log("Draggable Connections: Flip loaded");
+            gsap.registerPlugin(Flip);
+            setUpDraggables();
+        });
     });
 });
 
