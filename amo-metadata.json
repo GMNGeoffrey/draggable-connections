@@ -1,9 +1,8 @@
 {
     "version": {
         "release_notes": {
-            "en-US": "Version 0.5:\nAnimate tiles moving back to the position the user put them after a category is solved."
+            "en-US": "Version 0.6:\nMatch all variations of page URL including query parameters, different URL schemes, www subdomain (or not), and trailing slash in path."
         },
-        "approval_notes": "Original source of third_party/Flip.min.js is https://raw.githubusercontent.com/greensock/GSAP/f836a3f0002d6ea00f456a461c7e2976e0ec3f38/dist/Flip.min.js",
         "compatibility": [
             "android",
             "firefox"
