@@ -3,8 +3,14 @@
 
 # Node (web-ext extension development tool)
 node_modules/
-# I don't actually want to check in Node stuff right now
-package.json
+
+# I am making a principled decision not to check this into source control in
+# defiance of the node docs. I'm only using node for development tools and I 
+# don't have any particular attachment to the current versions of things, nor
+# are any of the tools interacting with each other. I don't particularly want
+# to check in a many thousand line file that isn't helpful for anything. I am,
+# however, checking in the package.json, so people can easily install the
+# development tools.
 package-lock.json
 
 # web-ext
