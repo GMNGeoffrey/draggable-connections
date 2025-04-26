@@ -140,6 +140,18 @@ docs. Then run
 npx web-ext sign
 ```
 
+#### Bookmarklet
+
+If you made changes to the source code (as opposed to just) extension metadata,
+rebuild the bookmarklet
+
+```shell
+bookmarklet/create.sh
+```
+
+(you can also confirm that you didn't make any changes, in which case rerunning
+this shouldn't change anything).
+
 ## License
 
 This project is licensed under the terms of the MIT license. See
