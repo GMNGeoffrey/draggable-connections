@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Draggable Connections",
-  "version": "0.5",
+  "version": "0.6",
   "author": "Geoffrey Christopher Martin-Noble",
   "description": "Adds drag and drop functionality to the NYT Connections game.",
   "homepage_url": "https://github.com/GMNGeoffrey/draggable-connections",
@@ -15,7 +15,16 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.nytimes.com/games/connections"
+        // Match the page for connections in the various ways it might be
+        // spelled with and without a trailing slash or query parameters. Note
+        // that the question marks are literal question marks, not wildcards as
+        // in `include_globs`. For completeness, I used a wildcard for the URL
+        // scheme and www even though these seem to always redirect to
+        // https://www.nytimes.com
+        "*://*.nytimes.com/games/connections",
+        "*://*.nytimes.com/games/connections?*",
+        "*://*.nytimes.com/games/connections/",
+        "*://*.nytimes.com/games/connections/?*"
       ],
       "js": [
         "third_party/gsap.min.js",
