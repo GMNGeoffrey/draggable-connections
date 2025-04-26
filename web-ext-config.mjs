@@ -8,4 +8,8 @@ export default {
         'README.md', // This is the README for the GitHub project, not the extension
         '*.mjs',
     ],
+    sign: {
+        "amoMetadata": "amo-metadata.json",
+        "channel": "listed"
+    }
 };
