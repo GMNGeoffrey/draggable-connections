@@ -24,6 +24,7 @@
         "*://*.nytimes.com/games/connections",
         "*://*.nytimes.com/games/connections?*",
         "*://*.nytimes.com/games/connections/",
+        "*://*.nytimes.com/games/connections/*",
         "*://*.nytimes.com/games/connections/?*"
       ],
       "js": [
