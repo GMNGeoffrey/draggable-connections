@@ -23,9 +23,7 @@
         // https://www.nytimes.com
         "*://*.nytimes.com/games/connections",
         "*://*.nytimes.com/games/connections?*",
-        "*://*.nytimes.com/games/connections/",
-        "*://*.nytimes.com/games/connections/*",
-        "*://*.nytimes.com/games/connections/?*"
+        "*://*.nytimes.com/games/connections/*"
       ],
       "js": [
         "third_party/gsap.min.js",
