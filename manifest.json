@@ -16,9 +16,10 @@
     {
       "matches": [
         // Match the page for connections in the various ways it might be
-        // spelled with and without a trailing slash or query parameters. Note
-        // that the question marks are literal question marks, not wildcards as
-        // in `include_globs`. For completeness, I used a wildcard for the URL
+        // spelled with and without a trailing slash or query parameters and
+        // including subpaths such as the connections archive. Note that the
+        // question marks are literal question marks, not wildcards as in
+        // `include_globs`. For completeness, I used a wildcard for the URL
         // scheme and www even though these seem to always redirect to
         // https://www.nytimes.com
         "*://*.nytimes.com/games/connections",
