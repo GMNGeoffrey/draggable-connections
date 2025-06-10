@@ -1,7 +1,7 @@
 {
     "version": {
         "release_notes": {
-            "en-US": "Version 0.6:\nMatch all variations of page URL including query parameters, different URL schemes, www subdomain (or not), and trailing slash in path."
+            "en-US": "Version 0.7:\nRun on connections archive."
         },
         "compatibility": [
             "android",
