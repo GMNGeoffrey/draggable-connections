@@ -200,6 +200,11 @@ function setUpDraggables() {
     // element for the solved nodes is only created once the first category is
     // solved. Unfortunately, if the user gets it wrong, the observer won't get
     // disconnected again as we don't have anything to hook into.
+    // Update solvedCategoriesContainer to ensure we have the current parent element
+    solvedNodes = outerContainer.querySelectorAll('[data-testid="solved-category-container"]');
+    if (solvedNodes.length > 0) {
+      solvedCategoriesContainer = solvedNodes[0].parentNode;
+    }
     observer.observe(solvedCategoriesContainer, { childList: true, subtree: true });
   });
 
