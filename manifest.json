@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Draggable Connections",
-  "version": "0.7",
+  "version": "0.8",
   "author": "Geoffrey Christopher Martin-Noble",
   "description": "Adds drag and drop functionality to the NYT Connections game.",
   "homepage_url": "https://github.com/GMNGeoffrey/draggable-connections",
@@ -39,7 +39,7 @@
   // Mozilla requires it for using the API to upload new extension versions.
   // Fortunately, the only effect of this seems to be that Chrome complains, but
   // the extension still loads (at least for loading unpacked). May need to get
-  // creative with other options if actually publishing a Chrome extension. 
+  // creative with other options if actually publishing a Chrome extension.
   "browser_specific_settings": {
     "gecko": {
       "id": "{a155ef5b-95cf-4022-bfc9-fc94aef8c18a}"

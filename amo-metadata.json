@@ -1,7 +1,7 @@
 {
     "version": {
         "release_notes": {
-            "en-US": "Version 0.7:\nRun on connections archive."
+            "en-US": "Version 0.8:\nFix detection of solved categories container."
         },
         "compatibility": [
             "android",
