@@ -127,20 +127,14 @@ function setUpDraggables() {
   console.log("DRAGGABLE CONNECTIONS: setup called");
   gsap.registerPlugin(Draggable);
   gsap.registerPlugin(Flip);
-  // Only using selectors that aren't obfuscated. We could use class name
-  // prefixes as well as those seem to be consistent.
-  const outerContainer = document.querySelector("fieldset");
-  let tiles = Array.from(outerContainer.querySelectorAll('[data-testid="card-label"]'));
+  // Only using selectors that aren't obfuscated. Prefer data-testid when
+  // possible as these are intended for automated testing and are less likely to
+  // change. Then try class prefixes, which aren't obfuscated and appear to be stable.
+  const boardContainer = document.querySelector('[class^="Board-module_boardContainer"]');
+  const cardsContainer = document.querySelector('[class^="Cards-module_cardsContainer"]');
+  let tiles = Array.from(cardsContainer.querySelectorAll('[data-testid="card-label"]'));
   const tileContainer = tiles[0].parentNode;
   const submitBtn = document.querySelector('[data-testid="submit-btn"]');
-
-  // Unhelpfully, after a category is solved, all the remaining tiles get
-  // reordered. So we store the current order when submit is pressed and if a
-  // new solved category is added (and presumably everything else is reordered),
-  // we add the nodes back in the saved order.
-  let solvedNodes = outerContainer.querySelectorAll('[data-testid="solved-category-container"]');
-  let solvedCount = solvedNodes.length;
-  let tilesSnapshot = tiles;
 
   // NYT is using CSS transitions, which interact horribly with GSAP:
   // (https://gsap.com/resources/mistakes/#using-css-transitions-and-gsap-on-the-same-properties).
@@ -151,10 +145,21 @@ function setUpDraggables() {
     tile.style["transition"] = "none";
   }
 
-  let solvedCategoriesContainer = outerContainer;
-  if (solvedCount != 0) {
-    solvedCategoriesContainer = solvedNodes[0].parentNode;
+  let solvedCategoriesContainer = boardContainer.querySelector('[class^="SolvedCategories-module_solvedCategoriesContainer"]');
+  if (!solvedCategoriesContainer) {
+    // The solved categories container only exists after the first category is
+    // solved, so initially we have to observe the whole board container.
+    solvedCategoriesContainer = boardContainer;
   }
+
+  // Unhelpfully, after a category is solved, all the remaining tiles get
+  // reordered. So we store the current order when submit is pressed and if a
+  // new solved category is added (and presumably everything else is reordered),
+  // we add the nodes back in the saved order.
+  let solvedNodes = solvedCategoriesContainer.querySelectorAll('[data-testid="solved-category-container"]');
+  let solvedCount = solvedNodes.length;
+  let tilesSnapshot = tiles;
+
   const observer = new MutationObserver((mutationList, observer) => {
     let solvedChanged = false;
     for (const mutation of mutationList) {
@@ -168,14 +173,23 @@ function setUpDraggables() {
     }
     if (solvedChanged) {
       // Limit the scope we have to observe from now on.
-      solvedCategoriesContainer = solvedNodes[0].parentNode;
+      solvedCategoriesContainer = boardContainer.querySelector('[class^="SolvedCategories-module_solvedCategoriesContainer"]');
+      if (!solvedCategoriesContainer) {
+        console.warn("DRAGGABLE CONNECTIONS: couldn't find solved categories container after solving a category. Please file an issue.");
+        solvedCategoriesContainer = boardContainer;
+      }
+      // Filter for tiles that haven't been removed from the DOM because they're
+      // solved now.
       tilesSnapshot = tilesSnapshot.filter((e) => e.parentNode != null);
       tiles = tiles.filter((e) => e.parentNode != null);
       // Animate the tiles back to the order the user dragged them to.
       const beforeState = Flip.getState(tiles);
       tileContainer.replaceChildren(...tilesSnapshot);
       Flip.from(beforeState);
-      // The observer will be reconnected when the submit button is next clicked.
+      // The observer will be reconnected when the submit button is next
+      // clicked. We can't unconditionally disconnect because there could be an
+      // arbitrary number of mutations before the elements for the new solved
+      // category get added
       observer.disconnect();
     }
   });
@@ -193,13 +207,14 @@ function setUpDraggables() {
     // going to have to just be an unfortunate side-effect of using the
     // extension. Still worth it for the usability, but a bit less pretty.
 
-    tilesSnapshot = Array.from(outerContainer.querySelectorAll('[data-testid="card-label"]'));
+    tilesSnapshot = Array.from(boardContainer.querySelectorAll('[data-testid="card-label"]'));
     // We could just observe all the time, but it seems better to not have the
-    // observer running during all the dragging around. Before anything is
-    // solved, we have to observe the whole outer container because the parent
-    // element for the solved nodes is only created once the first category is
-    // solved. Unfortunately, if the user gets it wrong, the observer won't get
-    // disconnected again as we don't have anything to hook into.
+    // observer running during all the dragging around, especially since we have
+    // to observe the whole board container until the solved container is
+    // created, so we just the observer when submit is clicked and disconnect it
+    // when a new category is solved. Unfortunately, if the user guesses wrong,
+    // the observer won't get disconnected again as we don't have anything to
+    // hook into.
     observer.observe(solvedCategoriesContainer, { childList: true, subtree: true });
   });
 
