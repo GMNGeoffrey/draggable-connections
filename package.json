@@ -1,6 +1,6 @@
 {
   "devDependencies": {
     "bookmarkleter": "^1.1.0",
-    "web-ext": "^8.3.0"
+    "web-ext": "^9.3.0"
   }
 }
