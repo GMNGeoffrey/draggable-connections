@@ -92,7 +92,8 @@ words and fiddle with them. I don't want to copy-paste things though.
 
 Use
 [web-ext](https://extensionworkshop.com/documentation/develop/getting-started-with-web-ext/)
-to manage the extension. Run under `npx` unless you've added it to the path, e.g.:
+to manage the extension. Run under `npx` unless you've added it to the path,
+e.g.:
 
 ```shell
 npx web-ext lint
@@ -103,7 +104,6 @@ npx web-ext lint
 `web-ext run` doesn't work on WSL (https://github.com/wxt-dev/wxt/issues/55).
 You have to build the extension and then load it as a temporary add-on. You may
 want to first bump the version in the manifest.json to get a new filename.
-
 
 ```shell
 npx web-ext build
@@ -120,7 +120,9 @@ npx web-ext build --overwrite-dest
 ```
 
 and then on the `about:debugging` page `Reload` the temporary add-on. You will
-also likely need to reload the connections site.
+also likely need to reload the connections site. I recommend using a private
+window and deleting the cookies and local storage under the devtools "Storage"
+tab to get a fresh puzzle each time.
 
 ### Publish
 
@@ -133,7 +135,7 @@ put them in the git repository!** Update
 [amo-metadata.json](./amo-metadata.json) `release_notes` and any necessary
 `approval_notes` (in particular if you add any new minified dependencies, see
 Firefox
-[Third Party Library Usage](https://extensionworkshop.com/documentation/publish/third-party-library-usage/)
+[Third Party Library Usage](https://extensionworkshop.com/documentation/publish/third-party-library-usage/))
 docs. Then run
 
 ```shell
@@ -142,7 +144,7 @@ npx web-ext sign
 
 #### Bookmarklet
 
-If you made changes to the source code (as opposed to just) extension metadata,
+If you made changes to the source code (as opposed to just extension metadata),
 rebuild the bookmarklet
 
 ```shell
